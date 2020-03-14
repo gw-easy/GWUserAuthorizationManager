@@ -10,6 +10,9 @@
 #import <AVFoundation/AVFoundation.h>
 #import <Photos/Photos.h>
 #import <MobileCoreServices/MobileCoreServices.h>
+
+static NSTimeInterval gw_authorzation_delayTime = 0.3;
+
 @implementation GWUserAuthorizationManager
 + (void)checkAuthorization:(GWAuthorizationType)type firstRequestAccess:(void (^)(void))requestAccess completion:(void (^)(BOOL))completion {
     
@@ -64,7 +67,23 @@
     }
 }
 
-
++ (void)saveImageToPhotoLibrary:(UIImage *)image block:(void(^ __nullable)(void))block{
+    __weak typeof (self) weakSelf = self;
+    [self checkPhotoLibraryAuthorization:nil completion:^(BOOL isPermission) {
+        if (!isPermission) {
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(gw_authorzation_delayTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [weakSelf showSettingAlertWithAuth:@"相册" settingName:@"照片"];
+            });
+        }else{
+            [[PHPhotoLibrary sharedPhotoLibrary] performChangesAndWait:^{
+                [PHAssetChangeRequest creationRequestForAssetFromImage:image];
+                if (block) {
+                    block();
+                }
+            } error:nil];
+        }
+    }];
+}
 
 + (void)checkCameraAuthorization:(void(^ __nullable)(void))firstRequestAccess completion:(void (^)(BOOL))completion {
     
@@ -104,7 +123,10 @@
     __weak typeof (self) weakSelf = self;
     [self checkCameraAuthorization:nil completion:^(BOOL isPermission) {
         if (!isPermission) {
-            [weakSelf showSettingAlertWithAuth:@"相机" settingName:@"相机"];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(gw_authorzation_delayTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [weakSelf showSettingAlertWithAuth:@"相机" settingName:@"相机"];
+            });
+            
         }
     }];
     
@@ -148,7 +170,9 @@
     __weak typeof (self) weakSelf = self;
     [self checkPhotoLibraryAuthorization:nil completion:^(BOOL isPermission) {
         if (!isPermission) {
-            [weakSelf showSettingAlertWithAuth:@"相册" settingName:@"照片"];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(gw_authorzation_delayTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [weakSelf showSettingAlertWithAuth:@"相册" settingName:@"照片"];
+            });
         }
     }];
 }
@@ -194,7 +218,9 @@
     
     [self checkMicrophoneAuthorization:nil completion:^(BOOL isPermission) {
         if (!isPermission) {
-            [weakSelf showSettingAlertWithAuth:@"麦克风" settingName:@"麦克风"];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(gw_authorzation_delayTime * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                [weakSelf showSettingAlertWithAuth:@"麦克风" settingName:@"麦克风"];
+            });
         }
     }];
 }
