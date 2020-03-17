@@ -77,9 +77,11 @@ static NSTimeInterval gw_authorzation_delayTime = 0.3;
         }else{
             [[PHPhotoLibrary sharedPhotoLibrary] performChangesAndWait:^{
                 [PHAssetChangeRequest creationRequestForAssetFromImage:image];
-                if (block) {
-                    block();
-                }
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    if (block) {
+                        block();
+                    }
+                });
             } error:nil];
         }
     }];
