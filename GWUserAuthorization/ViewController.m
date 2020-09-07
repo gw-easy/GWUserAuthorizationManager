@@ -19,11 +19,27 @@
     [super viewDidLoad];
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self show];
-//        [self testSave];
+//        [self testLocation];
+//        [self testSaveImage];
     });
 }
 
-- (void)testSave{
+- (IBAction)testBtnAction:(id)sender {
+//    [self testLocation];
+    
+}
+
+- (void)testLocation{
+//    [GWUserAuthorizationManager checkAuthorization:GW_Location firstRequestAccess:nil completion:^(GWAuthorizationState state) {
+//        NSLog(@"%ld",(long)state);
+//    }];
+    
+    [GWUserAuthorizationManager requestAuthorization:GWAuthorizationType_Location_Always];
+    
+
+}
+
+- (void)testSaveImage{
     [GWUserAuthorizationManager saveImageToPhotoLibrary:[UIImage imageNamed:@""] block:^{
         NSLog(@"yes");
     }];
@@ -36,12 +52,12 @@
     UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
     
     UIAlertAction *camAction = [UIAlertAction actionWithTitle:@"相机" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [weakSelf.selectM startImageSelected:GW_Camera completion:^(UIImage * _Nullable image) {
+        [weakSelf.selectM startImageSelected:GWAuthorizationType_Camera completion:^(UIImage * _Nullable image) {
             [weakSelf selectImage:image];
         }];
     }];
     UIAlertAction *photoAction = [UIAlertAction actionWithTitle:@"相册" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-        [weakSelf.selectM startImageSelected:GW_PhotoLibrary completion:^(UIImage * _Nullable image) {
+        [weakSelf.selectM startImageSelected:GWAuthorizationType_PhotoLibrary completion:^(UIImage * _Nullable image) {
             [weakSelf selectImage:image];
         }];
     }];
